@@ -54,12 +54,14 @@ public class ColonelPanic {
 	//test if server fits in a row, if yes, it returns the position of server head, if no, returns -1
 	public int fit(int sizeOfServer, int row){
 		//for each start
-		for(int i = 0; i < grid[row].length ; i++) {
+		int i = 0;
+		while(i < grid[row].length) {
 			boolean fit = true;
 			//for each subsequent
 			for(int j = 0; j < sizeOfServer ; j++) {
 				if(grid[row][i+j] != -1){
 					fit = false;
+					i = i+j+1;
 					break;
 				}
 			}
@@ -146,7 +148,8 @@ public class ColonelPanic {
 	}
 	
 	public int computePoolScore(int i){
-		int score = 1000000;
+		System.out.println("Computing score for server: " + i);
+		int score = 100000;
 		int tmp = 0;
 		LinkedList<Server> pool = pools.get(i);
 		ListIterator<Server> it;
@@ -159,6 +162,7 @@ public class ColonelPanic {
 					tmp += s.capacity;
 				}
 			}
+			System.out.println("score for row " + r + " is " + tmp);
 			if(score > tmp){
 				score = tmp;
 			}
@@ -195,7 +199,7 @@ public class ColonelPanic {
 		int k = 0;
 		for(it = serverList.listIterator(0); it.hasNext();){
 			Server s = it.next();
-			if(!s.assigned){
+			if(!s.assigned && s.fits){
 				tmp = s.capacity/((double) s.size);
 				if(tmp > ratio){
 					ratio = tmp;
