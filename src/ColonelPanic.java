@@ -31,13 +31,26 @@ public class ColonelPanic {
 	// the value is a list of servers who has sizes == key 
 	private Map<Integer, LinkedList<Server>> sortedServers = new HashMap<Integer, LinkedList<Server>>();
 	
+	private LinkedList<Row> rows = new LinkedList<Row>();
+	
 	public ColonelPanic() {
 		
 	}
 	
+	public void sortServersList() {
+		Collections.sort(serverList, new Comparator<Server>() {
+			@Override
+	        public int compare(final Server s1, final Server s2) {
+				Double val1 = Double.valueOf(s1.capacity/s1.size);
+				Double val2 = Double.valueOf(s2.capacity/s2.size);
+	            return val2.compareTo(val1);
+			}
+	    });
+	}
+	
 	// create sortedServers with sorted servers
 	// i.e. sortedServers.get(i) will give a list of server (from the best to the worst) of size i
-	public void getBetterServers() {
+	public void sortServersMap() {
 		for (int i = 0, len = serverList.size(); i < len; i++) {
 			Server server = serverList.get(i);
 			if (sortedServers.containsKey(server.size)) {
@@ -60,6 +73,34 @@ public class ColonelPanic {
 		            return val2.compareTo(val1);
 				}
 		    });
+		}
+	}
+	
+	public void allocateServersA() {
+		while (!gridFull()) {
+			for (int i = 0, len = grid.length; i < len; i++) {
+				for (Map.Entry<Integer, LinkedList<Server>> entry : sortedServers.entrySet()) {
+					Server curServer = entry.getValue().get(0);
+					int start = fit(curServer.size, i);
+					if (-1 != start) {
+						curServer.assign(i, start);
+					}
+				}
+			}
+		}		
+	}
+	
+	public void allocateServersB() {
+		for (int i = 0; i < poolNb; i++) {
+			for (int j = 0; j < rowNb; j++) {
+				for (Server server : serverList) {
+					int start = fit(server.size, j);
+					if (-1 != start) {
+						server.assign(j, start);
+						server.pool = i;
+					}
+				}
+			}
 		}
 	}
 	
@@ -133,16 +174,14 @@ public class ColonelPanic {
         	y = Integer.parseInt(first[1]);
         	System.out.println("server nb" + k + " size: " + x + " capacity: " + y);
         	serverList.add(new Server(x, y));
+        	serverList.getLast().id = k;
         }
         
 	}
 	
-	
 	public boolean isAvailable(int r, int s){
 		return grid[r][s] == -1;
-	}
-	
-	
+	}	
 	
 	public void writeSubmission() throws FileNotFoundException, UnsupportedEncodingException{
 		ListIterator<Server> it;
@@ -217,6 +256,16 @@ public class ColonelPanic {
 		return index;
 	}
 	
+	public boolean gridFull() {
+		for (int[] row : grid) {
+			for (int slot : row) {
+				if (slot == 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	
 	
 	public static void main(String[] args){
@@ -250,6 +299,7 @@ public class ColonelPanic {
 		public int pool = -1;
 		public int row;
 		public int slot;
+		public int id;
 		public boolean assigned = false;
 
 
@@ -264,7 +314,7 @@ public class ColonelPanic {
 				for(int i = 0; i < size; i++){
 					if(!isAvailable(r, s+i)){
 
-						throw new Exception("PlaceTake");
+						throw new Exception("PlaceTaken");
 
 					}
 				}
@@ -273,8 +323,10 @@ public class ColonelPanic {
 				e.printStackTrace();
 			}
 			assigned = true;
-			for(int i = 0; i < size; i++){
-				grid[r][s+i] = 0; //Switching it to assigned
+			for (int i = 0; i < size; i++) {
+				grid[r][s+i] = id; // Switching it to assigned
+				row = r;
+				slot = s;
 			}
 		}
 	}
