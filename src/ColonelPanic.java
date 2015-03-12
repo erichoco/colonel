@@ -3,8 +3,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Map;
 
 
 public class ColonelPanic {
@@ -20,12 +22,50 @@ public class ColonelPanic {
 	
 	public int[][] grid;
 	
-	public ColonelPanic(){
+
+	private Map<Integer, LinkedList<Server>> sortedServers = new HashMap<Integer, LinkedList<Server>>();
+	
+	public ColonelPanic() {
 		
 	}
 	
+	public void getBetterServers() {
+		for (int i = 0, len = serverList.size(); i < len; i++) {
+			Server server = serverList.get(i);
+			if (sortedServers.containsKey(server.size)) {
+				LinkedList<Server> curList = sortedServers.get(server.size);
+				curList.add(server);
+			}
+			else {
+				LinkedList<Server> newList = new LinkedList<Server>();
+				newList.add(server);
+				sortedServers.put(server.size, newList);
+			}
+		}
+		// TODO
+		
+		
+		 
+	}
 	
-	
+	//test if server fits in a row, if yes, it returns the position of server head, if no, returns -1
+	public int fit(int sizeOfServer, int row){
+		//for each start
+		for(int i = 0; i < grid[row].length ; i++) {
+			boolean fit = true;
+			//for each subsequent
+			for(int j = 0; j < sizeOfServer ; j++) {
+				if(grid[row][i+j] != -1){
+					fit = false;
+					break;
+				}
+			}
+			if(fit == true) {
+				return i;
+			}
+		}
+		return -1;
+	}
 	
 	public void parseEntry() throws IOException{
 	    BufferedReader br = new BufferedReader(new FileReader("dc.in"));
