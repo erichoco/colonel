@@ -31,8 +31,6 @@ public class ColonelPanic {
 	// the value is a list of servers who has sizes == key 
 	private Map<Integer, LinkedList<Server>> sortedServers = new HashMap<Integer, LinkedList<Server>>();
 	
-	private LinkedList<Row> rows = new LinkedList<Row>();
-	
 	public ColonelPanic() {
 		
 	}
