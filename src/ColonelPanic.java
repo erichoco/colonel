@@ -96,6 +96,7 @@ public class ColonelPanic {
 					if (-1 != start) {
 						server.assign(j, start);
 						server.pool = i;
+						pools.get(i).add(server);
 					}
 				}
 			}
@@ -109,6 +110,9 @@ public class ColonelPanic {
 		while(i < grid[row].length) {
 			boolean fit = true;
 			//for each subsequent
+			if (i+sizeOfServer >= grid[row].length) {
+				return -1;
+			}
 			for(int j = 0; j < sizeOfServer ; j++) {
 				if(grid[row][i+j] != -1){
 					fit = false;
@@ -149,7 +153,7 @@ public class ColonelPanic {
     	}
     	grid = new int[rowNb][slotNb];
     	for(int i = 0; i < rowNb; i++){
-    		for(int j = 0; j < rowNb; j++){
+    		for(int j = 0; j < slotNb; j++){
     			grid[i][j] = -1; //empty
     		}
     	}
@@ -310,7 +314,14 @@ public class ColonelPanic {
 			}
 			
 			System.out.println(p.computeGlobalScore());
-				
+			/*
+			ColonelPanic p2 = new ColonelPanic();
+			p2.parseEntry();
+			p2.sortServersList();
+			p2.allocateServersB();
+			int score = p2.computeGlobalScore();
+			System.out.println("Second trial: " + score);*/
+
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
