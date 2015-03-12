@@ -1,8 +1,11 @@
 import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -82,7 +85,18 @@ public class ColonelPanic {
         
 	}
 	
-	
+	public void writeSubmission() throws FileNotFoundException, UnsupportedEncodingException{
+		ListIterator<Server> it;
+		PrintWriter writer = new PrintWriter("out", "UTF-8");
+		Server s;
+		String u;
+		for(it = serverList.listIterator(0); it.hasNext();){
+			s = it.next();
+			u = s.row + " " + s.slot + " " + s.pool;
+			writer.println(u);
+		}
+		writer.close();
+	}
 	
 	public int computePoolScore(int i){
 		int score = 0;
