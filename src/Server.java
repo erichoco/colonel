@@ -6,7 +6,6 @@ public class Server {
 	public int row;
 	public int slot;
 	
-	
 	public Server(int a, int b){
 		size = a;
 		capacity = b;
