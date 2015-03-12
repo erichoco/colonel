@@ -85,6 +85,13 @@ public class ColonelPanic {
         
 	}
 	
+	
+	public boolean isAvailable(int r, int s){
+		return grid[r][s] == -1;
+	}
+	
+	
+	
 	public void writeSubmission() throws FileNotFoundException, UnsupportedEncodingException{
 		ListIterator<Server> it;
 		PrintWriter writer = new PrintWriter("out", "UTF-8");
@@ -121,6 +128,19 @@ public class ColonelPanic {
 		return score;
 	}
 	
+	public int computeGlobalScore(){
+		int tmp = 0;
+		int score = 0;
+		for(int i = 0; i < poolNb; i++){
+			tmp = computePoolScore(i);
+			if(score > tmp){
+				score = tmp;
+			}
+		}
+		
+		return score;
+	}
+	
 	public boolean validateSubmission(){
 		return true;
 	}
@@ -131,6 +151,27 @@ public class ColonelPanic {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	
+
+	public class Server {
+		public int size;
+		public int capacity;
+		public int pool = -1;
+		public int row;
+		public int slot;
+
+
+		public Server(int a, int b){
+			size = a;
+			capacity = b;
+		}
+
+
+		public void assign(int r, int s){
+			for()
 		}
 	}
 	
