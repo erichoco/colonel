@@ -210,9 +210,6 @@ public class ColonelPanic {
 		}
 
 
-		public void assign(int r, int s){
-			for()
-		}
 	}
 	
 }
