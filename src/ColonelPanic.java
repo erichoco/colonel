@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
@@ -25,13 +27,16 @@ public class ColonelPanic {
 	
 	public int[][] grid;
 	
-
+	// the key is the slot number
+	// the value is a list of servers who has sizes == key 
 	private Map<Integer, LinkedList<Server>> sortedServers = new HashMap<Integer, LinkedList<Server>>();
 	
 	public ColonelPanic() {
 		
 	}
 	
+	// create sortedServers with sorted servers
+	// i.e. sortedServers.get(i) will give a list of server (from the best to the worst) of size i
 	public void getBetterServers() {
 		for (int i = 0, len = serverList.size(); i < len; i++) {
 			Server server = serverList.get(i);
@@ -45,10 +50,17 @@ public class ColonelPanic {
 				sortedServers.put(server.size, newList);
 			}
 		}
-		// TODO
-		
-		
-		 
+		for (Map.Entry<Integer, LinkedList<Server>> entry : sortedServers.entrySet()) {
+			LinkedList<Server> curList = entry.getValue();
+			Collections.sort(curList, new Comparator<Server>() {
+				@Override
+		        public int compare(final Server object1, final Server object2) {
+					Double val1 = Double.valueOf(object1.capacity/object1.size);
+					Double val2 = Double.valueOf(object2.capacity/object2.size);
+		            return val2.compareTo(val1);
+				}
+		    });
+		}
 	}
 	
 	//test if server fits in a row, if yes, it returns the position of server head, if no, returns -1
