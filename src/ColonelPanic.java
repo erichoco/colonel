@@ -109,7 +109,7 @@ public class ColonelPanic {
     	grid = new int[rowNb][slotNb];
     	for(int i = 0; i < rowNb; i++){
     		for(int j = 0; j < rowNb; j++){
-    			grid[i][j] = -1;
+    			grid[i][j] = -1; //empty
     		}
     	}
     	
@@ -122,7 +122,7 @@ public class ColonelPanic {
         	y = Integer.parseInt(first[1]);
         	System.out.println("slot nb" + k + " place: " + x + " " + y);
         	unavailableSlots.add(new Point(x, y));
-        	grid[x][y] = -2;
+        	grid[x][y] = -2; //unavailable
         }
         
         System.out.println("****Server list****");
@@ -197,9 +197,45 @@ public class ColonelPanic {
 		return true;
 	}
 	
+	
+	public int findBestRatio(){ //FInd best ratio among unassigned servers
+		double ratio = 0; 
+		int index = 0;
+		ListIterator<Server> it;
+		double tmp = 0.;
+		int k = 0;
+		for(it = serverList.listIterator(0); it.hasNext();){
+			Server s = it.next();
+			if(!s.assigned){
+				tmp = s.capacity/((double) s.size);
+				if(tmp > ratio){
+					index = k;
+				}
+			}
+			k++;
+		}
+		return index;
+	}
+	
+	
+	
 	public static void main(String[] args){
 		try {
-			(new ColonelPanic()).parseEntry();
+			ColonelPanic p = new ColonelPanic();
+			p.parseEntry();
+			boolean b = true;
+			
+			while(b){
+				ListIterator<Server> it;
+				int best = p.findBestRatio();
+				Server s = p.serverList.get(best);
+				
+				//now try to assign it
+				
+				
+			}
+				
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -214,6 +250,7 @@ public class ColonelPanic {
 		public int pool = -1;
 		public int row;
 		public int slot;
+		public boolean assigned = false;
 
 
 		public Server(int a, int b){
@@ -222,6 +259,24 @@ public class ColonelPanic {
 		}
 
 
+		public void assign(int r, int s){
+			try {
+				for(int i = 0; i < size; i++){
+					if(!isAvailable(r, s+i)){
+
+						throw new Exception("PlaceTake");
+
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			assigned = true;
+			for(int i = 0; i < size; i++){
+				grid[r][s+i] = 0; //Switching it to assigned
+			}
+		}
 	}
 	
 }
