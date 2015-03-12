@@ -105,12 +105,14 @@ public class ColonelPanic {
 	//test if server fits in a row, if yes, it returns the position of server head, if no, returns -1
 	public int fit(int sizeOfServer, int row){
 		//for each start
-		for(int i = 0; i < grid[row].length ; i++) {
+		int i = 0;
+		while(i < grid[row].length) {
 			boolean fit = true;
 			//for each subsequent
 			for(int j = 0; j < sizeOfServer ; j++) {
 				if(grid[row][i+j] != -1){
 					fit = false;
+					i = i+j+1;
 					break;
 				}
 			}
@@ -134,15 +136,15 @@ public class ColonelPanic {
         unavailableSlotNb = Integer.parseInt(first[2]);
         poolNb = Integer.parseInt(first[3]);
         serverNb = Integer.parseInt(first[4]);
-    	System.out.println("rown nb: " + rowNb);
+    	/*System.out.println("rown nb: " + rowNb);
     	System.out.println("slot nb: " + slotNb);
     	System.out.println("unavailableSlotNb: " + unavailableSlotNb);
     	System.out.println("poolNb: " + poolNb);
-    	System.out.println("serverNb: " + serverNb);
+    	System.out.println("serverNb: " + serverNb);*/
     	
     	int totalCapacity = 0;
     	pools = new LinkedList<LinkedList<Server>>();
-    	for (int i = 0; i < rowNb; i++){
+    	for (int i = 0; i < poolNb; i++){
     		pools.add(new LinkedList<Server>());
     	}
     	grid = new int[rowNb][slotNb];
@@ -159,7 +161,7 @@ public class ColonelPanic {
         	first = line.split(" ");
         	x = Integer.parseInt(first[0]);
         	y = Integer.parseInt(first[1]);
-        	System.out.println("slot nb" + k + " place: " + x + " " + y);
+        	//System.out.println("slot nb" + k + " place: " + x + " " + y);
         	unavailableSlots.add(new Point(x, y));
         	grid[x][y] = -2; //unavailable
         }
@@ -170,7 +172,7 @@ public class ColonelPanic {
         	first = line.split(" ");
         	x = Integer.parseInt(first[0]);
         	y = Integer.parseInt(first[1]);
-        	System.out.println("server nb" + k + " size: " + x + " capacity: " + y);
+        	//System.out.println("server nb" + k + " size: " + x + " capacity: " + y);
         	serverList.add(new Server(x, y));
         	serverList.getLast().id = k;
         }
@@ -195,8 +197,9 @@ public class ColonelPanic {
 	}
 	
 	public int computePoolScore(int i){
-		int score = 0;
-		int tmp;
+		System.out.println("Computing score for server: " + i);
+		int score = 100000;
+		int tmp = 0;
 		LinkedList<Server> pool = pools.get(i);
 		ListIterator<Server> it;
 		Server s;
@@ -205,14 +208,17 @@ public class ColonelPanic {
 			for(it = pool.listIterator(0); it.hasNext();){
 				s = it.next();
 				if(s.row != r){
-					tmp += it.next().capacity;
+					tmp += s.capacity;
 				}
 			}
+			System.out.println("score for row " + r + " is " + tmp);
 			if(score > tmp){
 				score = tmp;
 			}
 			
 		}
+		
+		System.out.println("Computed score for pool: " + i + " : " + score);
 		
 		return score;
 	}
@@ -226,7 +232,6 @@ public class ColonelPanic {
 				score = tmp;
 			}
 		}
-		
 		return score;
 	}
 	
@@ -243,9 +248,10 @@ public class ColonelPanic {
 		int k = 0;
 		for(it = serverList.listIterator(0); it.hasNext();){
 			Server s = it.next();
-			if(!s.assigned){
+			if(!s.assigned && s.fits){
 				tmp = s.capacity/((double) s.size);
 				if(tmp > ratio){
+					ratio = tmp;
 					index = k;
 				}
 			}
@@ -271,16 +277,39 @@ public class ColonelPanic {
 			ColonelPanic p = new ColonelPanic();
 			p.parseEntry();
 			boolean b = true;
-			
+			int pInd = 0;
+			int tried = 0;
 			while(b){
 				ListIterator<Server> it;
 				int best = p.findBestRatio();
 				Server s = p.serverList.get(best);
-				
+				System.out.println("Found best server at index: " + best);
 				//now try to assign it
-				
+				int r = 0;
+				for(r = 0; r < p.rowNb; r++){
+					int slot = p.fit(s.size,  r);
+					if(slot != -1){ // we can fit
+						System.out.println("Adding server to pool: " + pInd + "at pos: " + r + " " + slot);
+						s.assign(r, slot);
+						s.pool = pInd;
+						p.pools.get(pInd).add(s);
+						pInd = (pInd +1)%p.poolNb;
+						break;
+					}
+					else{
+						s.fits = false;
+					}
+
+				}
+				// We could not find a row where it fits
+				if(tried == p.serverNb){
+					b = false;
+				}
+				tried++;
 				
 			}
+			
+			System.out.println(p.computeGlobalScore());
 				
 			
 		} catch (IOException e) {
@@ -299,7 +328,7 @@ public class ColonelPanic {
 		public int slot;
 		public int id;
 		public boolean assigned = false;
-
+		public boolean fits = true;
 
 		public Server(int a, int b){
 			size = a;
